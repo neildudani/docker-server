@@ -19,7 +19,7 @@ async function ConnectToDb() {
       await client.connect();
       break;
     } catch (err) {
-      console.log('error: ', error);
+      console.log('error: ', err);
       retries -= 1;
       console.log(`retries left: ${retries}`);
       await new Promise(res => setTimeout(res, 5000));
