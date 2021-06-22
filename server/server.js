@@ -5,21 +5,40 @@ const port = 4444;
 const { Client } = require('pg');
 const client = new Client({
   user: 'postgres',
-  host: 'the-name-for-my-postgres-container-within-the-docker-compose-yml-file',
-  database: 'postgres',
+  host: 'db',
+  database: 'some-postgres',
+  password: 'mysecretpassword',
   port: 5432,
 })
-client.connect();
+
+
+async function ConnectToDb() {
+  let retries = 5;
+  while (retries) {
+    try {
+      await client.connect();
+      break;
+    } catch (err) {
+      console.log('error: ', error);
+      retries -= 1;
+      console.log(`retries left: ${retries}`);
+      await new Promise(res => setTimeout(res, 5000));
+    }
+  }
+}
+
+ConnectToDb()
 
 
 app.get('/', (req, res) => {
-  client.query('SELECT * FROM team;', (err, dbResponse) => {
+  client.query('SELECT * FROM team', (err, dbResponse) => {
     if (err) {
       res.status(400);
+      console.log(err);
       res.send('Database is not connected successfully!');
     }
+    console.log('db response: ', dbResponse);
     res.send(dbResponse);
-    client.end();
   });
 })
 
